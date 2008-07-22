@@ -1,6 +1,6 @@
 %define name	dino
 %define version	0.2.1
-%define release %mkrel 2
+%define release %mkrel 4
 
 Name: 	 	%{name}
 Summary: 	Pattern-based MIDI sequencer
