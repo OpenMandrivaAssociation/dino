@@ -13,7 +13,7 @@ URL:		http://dinoseq.sourceforge.net/
 License:	GPL
 Group:		Sound
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	ImageMagick
+BuildRequires:	imagemagick
 BuildRequires:	jackit-devel >= 0.102.5
 BuildRequires:	libglademm2.4-devel
 BuildRequires:	lash-devel
