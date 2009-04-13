@@ -1,24 +1,25 @@
 %define name	dino
-%define version	0.2.1
-%define release %mkrel 4
+%define version	0.2.2
+%define release %mkrel 1
 
 Name: 	 	%{name}
 Summary: 	Pattern-based MIDI sequencer
 Version: 	%{version}
 Release: 	%{release}
-
-Source:		%{name}-%{version}.tar.bz2
-Patch0:         dino-0.2.1-fix-build.patch
-URL:		http://dinoseq.sourceforge.net/
 License:	GPL
 Group:		Sound
-BuildRoot:	%{_tmppath}/%{name}-buildroot
+URL:		http://dino.nongnu.org/
+Source:		http://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.tar.gz
+Patch2:         dino-0.2.2-fix-jack-api-change.patch
+Patch3:         44485e712d043398fed396d010af613d79c672f4.patch
+Patch4:         79742f0d08e23ee0c6737b48e242246adc065bac.patch
 BuildRequires:	imagemagick
 BuildRequires:	jackit-devel >= 0.102.5
 BuildRequires:	libglademm2.4-devel
 BuildRequires:	lash-devel
 BuildRequires:	libxml++-devel
 BuildRequires:	chrpath
+BuildRoot:	%{_tmppath}/%{name}-%{version}
 
 %description
 Dino is a pattern-based sequencer, which means that you write small patterns
@@ -29,21 +30,23 @@ basslines.
 
 %prep
 %setup -q
-%patch0 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 %build
 %configure2_5x
 %make
 										
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 %makeinstall
 chrpath -d %buildroot/%_bindir/%name
 
 #menu
 
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/applications
-cat > $RPM_BUILD_ROOT%{_datadir}/applications/mandriva-%{name}.desktop << EOF
+mkdir -p %{buildroot}%{_datadir}/applications
+cat > %{buildroot}%{_datadir}/applications/mandriva-%{name}.desktop << EOF
 [Desktop Entry]
 Name=Dino
 Comment=MIDI Sequencer
@@ -56,17 +59,17 @@ Categories=X-MandrivaLinux-Multimedia-Sound;AudioVideo;Audio;Sequencer;
 EOF
 
 #icons
-mkdir -p $RPM_BUILD_ROOT/%_liconsdir
-convert -size 48x48 pixmaps/head.png $RPM_BUILD_ROOT/%_liconsdir/%name.png
-mkdir -p $RPM_BUILD_ROOT/%_iconsdir
-convert -size 32x32 pixmaps/head.png $RPM_BUILD_ROOT/%_iconsdir/%name.png
-mkdir -p $RPM_BUILD_ROOT/%_miconsdir
-convert -size 16x16 pixmaps/head.png $RPM_BUILD_ROOT/%_miconsdir/%name.png
+mkdir -p %{buildroot}/%_liconsdir
+convert -size 48x48 pixmaps/head.png %{buildroot}/%_liconsdir/%name.png
+mkdir -p %{buildroot}/%_iconsdir
+convert -size 32x32 pixmaps/head.png %{buildroot}/%_iconsdir/%name.png
+mkdir -p %{buildroot}/%_miconsdir
+convert -size 16x16 pixmaps/head.png %{buildroot}/%_miconsdir/%name.png
 
 %find_lang %name
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %if %mdkversion < 200900
 %post
