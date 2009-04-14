@@ -19,6 +19,7 @@ BuildRequires:	libglademm2.4-devel
 BuildRequires:	lash-devel
 BuildRequires:	libxml++-devel
 BuildRequires:	chrpath
+BuildRequires:	readline-devel
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 
 %description
