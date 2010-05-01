@@ -13,6 +13,7 @@ Source:		http://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.ta
 Patch2:         dino-0.2.2-fix-jack-api-change.patch
 Patch3:         44485e712d043398fed396d010af613d79c672f4.patch
 Patch4:         79742f0d08e23ee0c6737b48e242246adc065bac.patch
+Patch5:		dino-0.2.2-gcc44.patch
 BuildRequires:	imagemagick
 BuildRequires:	jackit-devel >= 0.102.5
 BuildRequires:	libglademm2.4-devel
@@ -34,6 +35,7 @@ basslines.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p0
 
 %build
 %configure2_5x
@@ -41,7 +43,7 @@ basslines.
 										
 %install
 rm -rf %{buildroot}
-%makeinstall
+%makeinstall_std
 chrpath -d %buildroot/%_bindir/%name
 
 #menu
