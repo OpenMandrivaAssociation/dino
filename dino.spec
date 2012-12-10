@@ -68,3 +68,47 @@ convert -size 16x16 pixmaps/head.png %{buildroot}/%_miconsdir/%name.png
 %{_iconsdir}/%name.png
 %{_miconsdir}/%name.png
 
+
+
+%changelog
+* Mon Apr 23 2012 Dmitry Mikhirev <dmikhirev@mandriva.org> 0.2.8-1
++ Revision: 792808
+- update to 0.2.8
+- drop old patches
+
+* Sun Dec 05 2010 Oden Eriksson <oeriksson@mandriva.com> 0.2.2-2mdv2011.0
++ Revision: 610244
+- rebuild
+
+* Sat May 01 2010 Funda Wang <fwang@mandriva.org> 0.2.2-1mdv2010.1
++ Revision: 541395
+- fix build with gcc 4.4
+
+* Tue Apr 14 2009 Guillaume Rousse <guillomovitch@mandriva.org> 0.2.2-1mdv2009.1
++ Revision: 366884
+- fix build dependencies
+- new version
+- fix build
+
+  + Oden Eriksson <oeriksson@mandriva.com>
+    - lowercase ImageMagick
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - rebuild
+    - drop old menu
+    - kill re-definition of %%buildroot on Pixel's request
+    - import dino
+
+  + Pixel <pixel@mandriva.com>
+    - rpm filetriggers deprecates update_menus/update_scrollkeeper/update_mime_database/update_icon_cache/update_desktop_database/post_install_gconf_schemas
+
+  + Olivier Blin <blino@mandriva.org>
+    - restore BuildRoot
+
+
+* Wed Sep 13 2006 Nicolas Lécureuil <neoclust@mandriva.org> 0.2.1-2mdv2007.0
+- XDG
+- Add Patch0: Fix Build 
+
+* Thu May 18 2006 Austin Acton <austin@mandriva.org> 0.2.1-1mdk
+- initial package
