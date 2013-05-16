@@ -12,9 +12,9 @@ URL:		http://dino.nongnu.org/
 Source0:	http://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.tar.gz
 BuildRequires:	imagemagick
 BuildRequires:	jackit-devel >= 0.102.5
-BuildRequires:	libglademm2.4-devel
+BuildRequires:	pkgconfig(libglademm-2.4)
 BuildRequires:	lash-devel
-BuildRequires:	libxml++-devel
+BuildRequires:	pkgconfig(libxml++-2.6)
 BuildRequires:	chrpath
 BuildRequires:	readline-devel
 
