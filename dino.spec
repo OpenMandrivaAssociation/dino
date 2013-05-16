@@ -1,6 +1,6 @@
 %define name	dino
 %define version	0.2.8
-%define release 1
+%define release  2
 
 Name: 	 	%{name}
 Summary: 	Pattern-based MIDI sequencer
