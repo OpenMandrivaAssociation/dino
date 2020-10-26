@@ -31,7 +31,7 @@ basslines.
 %autopatch -p1
 
 %build
-export CXX="gcc++ -std=gnu++11"
+export CXX="g++ -std=gnu++11"
 %configure
 %make_build
 										
