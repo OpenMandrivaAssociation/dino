@@ -1,6 +1,6 @@
 %define name	dino
 %define version	0.2.8
-%define release  3
+%define release  1
 
 Name: 	 	%{name}
 Summary: 	Pattern-based MIDI sequencer
@@ -31,12 +31,12 @@ basslines.
 %autopatch -p1
 
 %build
-export CXX="clang++ -std=gnu++11"
-%configure2_5x
-%make
+export CXX="gcc++ -std=gnu++11"
+%configure
+%make_build
 										
 %install
-%makeinstall_std
+%make_install
 chrpath -d %buildroot/%_bindir/%name
 
 #menu
