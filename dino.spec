@@ -10,6 +10,7 @@ License:	GPLv2+
 Group:		Sound
 URL:		http://dino.nongnu.org/
 Source0:	http://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.tar.gz
+Patch0:		dino-0.2.8-gcc5.patch
 BuildRequires:	imagemagick
 BuildRequires:	jackit-devel >= 0.102.5
 BuildRequires:	pkgconfig(libglademm-2.4)
@@ -27,6 +28,7 @@ basslines.
 
 %prep
 %setup -q
+%autopatch -p1
 
 %build
 %configure2_5x
@@ -106,7 +108,7 @@ convert -size 16x16 pixmaps/head.png %{buildroot}/%_miconsdir/%name.png
     - restore BuildRoot
 
 
-* Wed Sep 13 2006 Nicolas Lécureuil <neoclust@mandriva.org> 0.2.1-2mdv2007.0
+* Wed Sep 13 2006 Nicolas LÃ©cureuil <neoclust@mandriva.org> 0.2.1-2mdv2007.0
 - XDG
 - Add Patch0: Fix Build 
 
