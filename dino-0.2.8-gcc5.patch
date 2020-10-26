@@ -1,0 +1,129 @@
+diff -urN dino-0.2.8/src/gui/infoeditor.cpp dino-0.2.8-patched/src/gui/infoeditor.cpp
+--- dino-0.2.8/src/gui/infoeditor.cpp	2011-02-13 03:39:07.000000000 +1000
++++ dino-0.2.8-patched/src/gui/infoeditor.cpp	2016-12-06 05:26:05.644133872 +1000
+@@ -62,7 +62,7 @@
+   slot<void> set_author = compose(mem_fun(*m_song, &Song::set_author),
+ 				  mem_fun(m_ent_author, &Entry::get_text));
+   slot<void> set_info = compose(mem_fun(*m_song, &Song::set_info),
+-				bind(mem_fun(buf, get_text), true));
++				sigc::bind(mem_fun(buf, get_text), true));
+ 
+   m_ent_title->signal_changed().connect(set_title);
+   m_ent_author->signal_changed().connect(set_author);
+diff -urN dino-0.2.8/src/gui/noteeditor.cpp dino-0.2.8-patched/src/gui/noteeditor.cpp
+--- dino-0.2.8/src/gui/noteeditor.cpp	2011-02-13 03:39:07.000000000 +1000
++++ dino-0.2.8-patched/src/gui/noteeditor.cpp	2016-12-06 05:25:31.576132466 +1000
+@@ -85,7 +85,7 @@
+   add_events(BUTTON_PRESS_MASK | BUTTON_RELEASE_MASK | 
+ 	     BUTTON_MOTION_MASK | SCROLL_MASK | POINTER_MOTION_MASK);
+   
+-  m_added_note = make_pair(-1, -1);
++  m_added_note = std::make_pair(-1, -1);
+   m_drag_step = -1;
+ }
+ 
+@@ -222,7 +222,7 @@
+ 	m_selection.clear();
+ 	if (iter != m_pat->notes_end())
+ 	  m_selection.add_note(iter);
+-	m_added_note = make_pair(step, note);
++	m_added_note = std::make_pair(step, note);
+ 	m_drag_operation = DragChangingNoteLength;
+       }
+       
+@@ -296,7 +296,7 @@
+ 	  for (iter = m_selection.begin(); iter != m_selection.end(); ++iter)
+ 	    m_pat->resize_note(iter, new_size);
+ 	  m_last_note_length = new_size;
+-	  m_added_note = make_pair(iterator->get_step(), note);
++	  m_added_note = std::make_pair(iterator->get_step(), note);
+ 	  m_drag_operation = DragChangingNoteLength;
+ 	}
+       }
+@@ -350,7 +350,7 @@
+       PatternSelection::Iterator iter;
+       for (iter = m_selection.begin(); iter != m_selection.end(); ++iter)
+ 	m_pat->resize_note(iter, new_size);
+-      m_added_note = make_pair(-1, -1);
++      m_added_note = std::make_pair(-1, -1);
+     }
+   }
+   
+diff -urN dino-0.2.8/src/gui/sequenceeditor.cpp dino-0.2.8-patched/src/gui/sequenceeditor.cpp
+--- dino-0.2.8/src/gui/sequenceeditor.cpp	2011-02-13 03:39:07.000000000 +1000
++++ dino-0.2.8-patched/src/gui/sequenceeditor.cpp	2016-12-06 05:26:48.890135657 +1000
+@@ -132,7 +132,7 @@
+ void SequenceEditor::set_sequencer(Dino::Sequencer* seq) {
+   m_seq = seq;
+   m_seq->signal_instruments_changed.
+-    connect(bind(mem_fun(*m_dlg_track, &TrackDialog::update_ports), m_seq));
++    connect(sigc::bind(mem_fun(*m_dlg_track, &TrackDialog::update_ports), m_seq));
+   m_dlg_track->update_ports(m_seq);
+   m_sequence_ruler.signal_clicked.
+     connect(sigc::hide(mem_fun(*m_seq, &Sequencer::go_to_beat)));
+@@ -166,7 +166,7 @@
+     TrackWidget* tw = manage(new TrackWidget(m_song));
+     tw->set_track(&*iter);
+     tw->signal_clicked.
+-      connect(sigc::hide(bind(mem_fun(*this, &SequenceEditor::set_active_track),
++      connect(sigc::hide(sigc::bind(mem_fun(*this, &SequenceEditor::set_active_track),
+ 			      iter->get_id())));
+     m_seq->signal_beat_changed.
+       connect(mem_fun(*tw, &TrackWidget::set_current_beat));
+@@ -174,7 +174,7 @@
+     TrackLabel* tl = manage(new TrackLabel(m_song));
+     tl->set_track(iter->get_id(), &(*iter));
+     tl->signal_clicked.
+-      connect(sigc::hide(bind(mem_fun(*this, &SequenceEditor::set_active_track),
++      connect(sigc::hide(sigc::bind(mem_fun(*this, &SequenceEditor::set_active_track),
+ 			iter->get_id())));
+     m_vbx_track_labels->pack_start(*tl, PACK_SHRINK);
+     tl->set_active_track(m_active_track);
+diff -urN dino-0.2.8/src/gui/trackwidget.cpp dino-0.2.8-patched/src/gui/trackwidget.cpp
+--- dino-0.2.8/src/gui/trackwidget.cpp	2011-02-13 03:39:07.000000000 +1000
++++ dino-0.2.8-patched/src/gui/trackwidget.cpp	2016-12-06 05:26:25.646134698 +1000
+@@ -157,7 +157,7 @@
+     for ( ; iter != m_track->pat_end(); ++iter) {
+       snprintf(tmp, 128, "%03d %s", iter->get_id(), iter->get_name().c_str());
+       Menu_Helpers::MenuElem
+-	elem(tmp, bind(bind(mem_fun(*this, &TrackWidget::slot_insert_pattern), 
++	elem(tmp, sigc::bind(sigc::bind(mem_fun(*this, &TrackWidget::slot_insert_pattern), 
+ 			    beat), iter->get_id()));
+       m_pattern_menu.items().push_back(elem);
+     }
+diff -urN dino-0.2.8/src/libdinoseq/song.cpp dino-0.2.8-patched/src/libdinoseq/song.cpp
+--- dino-0.2.8/src/libdinoseq/song.cpp	2011-02-13 05:02:13.000000000 +1000
++++ dino-0.2.8-patched/src/libdinoseq/song.cpp	2016-12-06 05:25:31.577132466 +1000
+@@ -499,9 +499,9 @@
+   }
+ 
+ 
+-  pair<int, int> Song::frame2bt(unsigned long frame) {
+-    int32_t beat = 0, tick = 0;
+-    return make_pair<int, int>(beat, tick);
++  std::pair<int, int> Song::frame2bt(unsigned long frame) {
++    int beat = 0, tick = 0;
++    return std::make_pair(beat, tick);
+   }
+ 
+ 
+diff -urN dino-0.2.8/src/libdinoseq/song.hpp dino-0.2.8-patched/src/libdinoseq/song.hpp
+--- dino-0.2.8/src/libdinoseq/song.hpp	2011-02-13 03:39:07.000000000 +1000
++++ dino-0.2.8-patched/src/libdinoseq/song.hpp	2016-12-06 05:25:31.577132466 +1000
+@@ -23,6 +23,7 @@
+ 
+ #include <map>
+ #include <string>
++#include <utility>
+ 
+ #include <sigc++/signal.h>
+ 
+@@ -159,7 +160,7 @@
+ 			   int32_t& tick, double& frame_offset) const;
+     double get_current_tempo(int beat, int tick);
+     unsigned long bt2frame(double);
+-    pair<int, int> frame2bt(unsigned long frame);
++    std::pair<int, int> frame2bt(unsigned long frame);
+     //@}
+     
+     /// @name XML I/O
