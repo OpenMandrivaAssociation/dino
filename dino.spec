@@ -4,8 +4,8 @@
 
 Name: 	 	%{name}
 Summary: 	Pattern-based MIDI sequencer
-Version: 	%{version}
-Release: 	%{release}
+Version: 	0.2.8
+Release: 	1%{release}
 License:	GPLv2+
 Group:		Sound
 URL:		http://dino.nongnu.org/
