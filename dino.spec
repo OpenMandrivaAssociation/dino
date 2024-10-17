@@ -8,7 +8,7 @@ Version: 	0.2.8
 Release: 	1%{release}
 License:	GPLv2+
 Group:		Sound
-URL:		http://dino.nongnu.org/
+URL:		https://dino.nongnu.org/
 Source0:	http://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.tar.gz
 Patch0:		dino-0.2.8-gcc5.patch
 BuildRequires:	imagemagick
