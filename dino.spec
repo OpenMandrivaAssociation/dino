@@ -1,23 +1,20 @@
-%define name	dino
-%define version	0.2.8
-%define release  1
-
-Name: 	 	%{name}
-Summary: 	Pattern-based MIDI sequencer
-Version: 	0.2.8
-Release: 	1%{release}
+Summary:	Pattern-based MIDI sequencer
+Name:	 dino
+Version:	0.2.8
+Release:	12
 License:	GPLv2+
-Group:		Sound
-URL:		https://dino.nongnu.org/
-Source0:	http://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.tar.gz
-Patch0:		dino-0.2.8-gcc5.patch
-BuildRequires:	imagemagick
-BuildRequires:	jackit-devel >= 0.102.5
-BuildRequires:	pkgconfig(libglademm-2.4)
-BuildRequires:	lash-devel
-BuildRequires:	pkgconfig(libxml++-2.6)
+Group:	Sound
+Url:	https://savannah.nongnu.org/projects/dino
+Source0:	https://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.tar.gz
+Patch0:	dino-0.2.8-gcc5.patch
+Patch1:	dino-0.2.8-use-ladish-in-place-of-lash.patch
 BuildRequires:	chrpath
-BuildRequires:	readline-devel
+BuildRequires:	imagemagick
+BuildRequires:	pkgconfig(jack)
+BuildRequires:	pkgconfig(libglademm-2.4)
+BuildRequires:	pkgconfig(liblash)
+BuildRequires:	pkgconfig(libxml++-2.6)
+BuildRequires:	pkgconfig(readline)
 
 %description
 Dino is a pattern-based sequencer, which means that you write small patterns
@@ -26,92 +23,52 @@ track has its own patterns, so you can for example play the same drum pattern
 over and over again while you play different lead synth patterns and
 basslines.
 
+%files
+%doc AUTHORS ChangeLog NEWS README TODO
+%{_bindir}/%{name}
+%{_datadir}/%{name}
+%{_datadir}/applications/%{name}.desktop
+%{_liconsdir}/%{name}.png
+%{_iconsdir}/%{name}.png
+%{_miconsdir}/%{name}.png
+
+#-----------------------------------------------------------------------------
+
 %prep
-%setup -q
-%autopatch -p1
+%autosetup -p1
+
 
 %build
 export CXX="g++ -std=gnu++11"
+autoreconf -vfi
 %configure
 %make_build
-										
+
+
 %install
 %make_install
+
+# Drop rpath
 chrpath -d %buildroot/%_bindir/%name
 
-#menu
+# Provide a menu entry
 mkdir -p %{buildroot}%{_datadir}/applications
-cat > %{buildroot}%{_datadir}/applications/mandriva-%{name}.desktop << EOF
+cat > %{buildroot}%{_datadir}/applications/%{name}.desktop << EOF
 [Desktop Entry]
 Name=Dino
 Comment=MIDI Sequencer
-Exec=%{_bindir}/%{name} 
+Exec=%{name} 
 Icon=%{name}
 Terminal=false
 Type=Application
 StartupNotify=true
-Categories=X-MandrivaLinux-Multimedia-Sound;AudioVideo;Audio;Sequencer;
+Categories=X-OpenMandriva-Multimedia-Sound;AudioVideo;Audio;Sequencer;
 EOF
 
-#icons
-mkdir -p %{buildroot}/%_liconsdir
-convert -size 48x48 pixmaps/head.png %{buildroot}/%_liconsdir/%name.png
-mkdir -p %{buildroot}/%_iconsdir
-convert -size 32x32 pixmaps/head.png %{buildroot}/%_iconsdir/%name.png
-mkdir -p %{buildroot}/%_miconsdir
-convert -size 16x16 pixmaps/head.png %{buildroot}/%_miconsdir/%name.png
-
-%files
-%defattr(-,root,root)
-%doc AUTHORS ChangeLog NEWS README TODO
-%{_bindir}/%name
-%{_datadir}/%name
-%{_datadir}/applications/mandriva-%{name}.desktop
-%{_liconsdir}/%name.png
-%{_iconsdir}/%name.png
-%{_miconsdir}/%name.png
-
-
-
-%changelog
-* Mon Apr 23 2012 Dmitry Mikhirev <dmikhirev@mandriva.org> 0.2.8-1
-+ Revision: 792808
-- update to 0.2.8
-- drop old patches
-
-* Sun Dec 05 2010 Oden Eriksson <oeriksson@mandriva.com> 0.2.2-2mdv2011.0
-+ Revision: 610244
-- rebuild
-
-* Sat May 01 2010 Funda Wang <fwang@mandriva.org> 0.2.2-1mdv2010.1
-+ Revision: 541395
-- fix build with gcc 4.4
-
-* Tue Apr 14 2009 Guillaume Rousse <guillomovitch@mandriva.org> 0.2.2-1mdv2009.1
-+ Revision: 366884
-- fix build dependencies
-- new version
-- fix build
-
-  + Oden Eriksson <oeriksson@mandriva.com>
-    - lowercase ImageMagick
-
-  + Thierry Vignaud <tv@mandriva.org>
-    - rebuild
-    - drop old menu
-    - kill re-definition of %%buildroot on Pixel's request
-    - import dino
-
-  + Pixel <pixel@mandriva.com>
-    - rpm filetriggers deprecates update_menus/update_scrollkeeper/update_mime_database/update_icon_cache/update_desktop_database/post_install_gconf_schemas
-
-  + Olivier Blin <blino@mandriva.org>
-    - restore BuildRoot
-
-
-* Wed Sep 13 2006 Nicolas Lécureuil <neoclust@mandriva.org> 0.2.1-2mdv2007.0
-- XDG
-- Add Patch0: Fix Build 
-
-* Thu May 18 2006 Austin Acton <austin@mandriva.org> 0.2.1-1mdk
-- initial package
+# Provide icons
+mkdir -p %{buildroot}/%{_liconsdir}
+mkdir -p %{buildroot}/%{_iconsdir}
+mkdir -p %{buildroot}/%{_miconsdir}
+convert -size 48x48 pixmaps/head.png %{buildroot}/%{_liconsdir}/%{name}.png
+convert -size 32x32 pixmaps/head.png %{buildroot}/%{_iconsdir}/%{name}.png
+convert -size 16x16 pixmaps/head.png %{buildroot}/%{_miconsdir}/%{name}.png

@@ -1,0 +1,24 @@
+diff -rupN dino-0.2.8.old/configure.ac dino-0.2.8/configure.ac
+--- dino-0.2.8.old/configure.ac	2011-02-21 18:22:56.000000000 +0100
++++ dino-0.2.8/configure.ac	2025-07-08 21:05:10.278023125 +0200
+@@ -19,7 +19,7 @@ PKG_CHECK_MODULES(LIBGLADEMM, libglademm
+ PKG_CHECK_MODULES(LIBSIGPP, sigc++-2.0 >= 2.0.18)
+ PKG_CHECK_MODULES(LIBXMLPP, libxml++-2.6 >= 2.6.1)
+ PKG_CHECK_MODULES(JACK, jack >= 0.102.5)
+-PKG_CHECK_MODULES(LASH, lash-1.0 >= 0.5.0)
++PKG_CHECK_MODULES(LASH, liblash >= 1.1.1)
+ 
+ # Enable debugging?
+ AC_MSG_CHECKING([whether debugging info should be generated])
+diff -rupN dino-0.2.8.old/src/gui/dinogui.hpp dino-0.2.8/src/gui/dinogui.hpp
+--- dino-0.2.8.old/src/gui/dinogui.hpp	2011-02-12 20:02:13.000000000 +0100
++++ dino-0.2.8/src/gui/dinogui.hpp	2025-07-08 21:05:49.938771436 +0200
+@@ -23,7 +23,7 @@
+ 
+ #include <gtkmm.h>
+ #include <libglademm.h>
+-#include <lash/lash.h>
++#include <lash-1.0/lash/lash.h>
+ 
+ #include "cceditor.hpp"
+ #include "debug.hpp"
