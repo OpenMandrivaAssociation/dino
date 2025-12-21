@@ -8,6 +8,11 @@ Url:	https://savannah.nongnu.org/projects/dino
 Source0:	https://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.tar.gz
 Patch0:	dino-0.2.8-gcc5.patch
 Patch1:	dino-0.2.8-use-ladish-in-place-of-lash.patch
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	chrpath
 BuildRequires:	imagemagick
 BuildRequires:	pkgconfig(jack)
