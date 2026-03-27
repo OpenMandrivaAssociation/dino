@@ -1,7 +1,7 @@
 Summary:	Pattern-based MIDI sequencer
 Name:	 dino
 Version:	0.2.8
-Release:	12
+Release:	13
 License:	GPLv2+
 Group:	Sound
 Url:	https://savannah.nongnu.org/projects/dino
