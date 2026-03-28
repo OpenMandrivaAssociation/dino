@@ -1,0 +1,243 @@
+diff -up dino-0.2.8/configure.ac.omv~ dino-0.2.8/configure.ac
+--- dino-0.2.8/configure.ac.omv~	2026-03-28 02:10:09.447534615 +0100
++++ dino-0.2.8/configure.ac	2026-03-28 02:10:09.443706196 +0100
+@@ -7,7 +7,7 @@ AC_INIT(dino, 0.2.8)
+ AC_CONFIG_HEADERS([src/config.hpp])
+ AC_DEFINE([CR_YEAR], ["2006 - 2010"], [The copyright year])
+ 
+-AC_PROG_LIBTOOL
++LT_INIT
+ AC_CONFIG_SRCDIR([src/gui/main.cpp])
+ AM_INIT_AUTOMAKE
+ 
+@@ -17,7 +17,8 @@ AC_PROG_CXX
+ # Checks for libraries.
+ PKG_CHECK_MODULES(LIBGLADEMM, libglademm-2.4 >= 2.4.1)
+ PKG_CHECK_MODULES(LIBSIGPP, sigc++-2.0 >= 2.0.18)
+-PKG_CHECK_MODULES(LIBXMLPP, libxml++-2.6 >= 2.6.1)
++PKG_CHECK_MODULES(LIBXMLPP, libxml++-5.0 >= 5.0.0)
++PKG_CHECK_MODULES(GLIBMM, glibmm-2.4 >= 2.4)
+ PKG_CHECK_MODULES(JACK, jack >= 0.102.5)
+ PKG_CHECK_MODULES(LASH, liblash >= 1.1.1)
+ 
+diff -up dino-0.2.8/src/libdinoseq/deleter.hpp.omv~ dino-0.2.8/src/libdinoseq/deleter.hpp
+diff -up dino-0.2.8/src/libdinoseq/Makefile.am.omv~ dino-0.2.8/src/libdinoseq/Makefile.am
+--- dino-0.2.8/src/libdinoseq/Makefile.am.omv~	2026-03-28 02:10:43.615562994 +0100
++++ dino-0.2.8/src/libdinoseq/Makefile.am	2026-03-28 02:11:02.390439416 +0100
+@@ -1,4 +1,4 @@
+-AM_CPPFLAGS = @LIBXMLPP_CFLAGS@ @LIBSIGPP_CFLAGS@ @JACK_CFLAGS@ @DEBUG_CFLAGS@
++AM_CPPFLAGS = @LIBXMLPP_CFLAGS@ @LIBSIGPP_CFLAGS@ @GLIBMM_CFLAGS@ @JACK_CFLAGS@ @DEBUG_CFLAGS@
+ 
+ noinst_LTLIBRARIES = libdinoseq.la
+ 
+@@ -22,4 +22,4 @@ libdinoseq_la_SOURCES = \
+ 	debug.hpp debug.cpp \
+ 	xmlserialisable.hpp
+ 
+-libdinoseq_la_LIBADD = @LIBXMLPP_LIBS@ @LIBSIGPP_LIBS@ @JACK_LIBS@
++libdinoseq_la_LIBADD = @LIBXMLPP_LIBS@ @GLIBMM_LIBS@ @LIBSIGPP_LIBS@ @JACK_LIBS@
+diff -up dino-0.2.8/src/libdinoseq/pattern.cpp.omv~ dino-0.2.8/src/libdinoseq/pattern.cpp
+--- dino-0.2.8/src/libdinoseq/pattern.cpp.omv~	2026-03-28 02:11:28.555664967 +0100
++++ dino-0.2.8/src/libdinoseq/pattern.cpp	2026-03-28 02:13:14.555200564 +0100
+@@ -675,7 +675,7 @@ namespace Dino {
+     // notes
+     NoteIterator iter;
+     for (iter = notes_begin(); iter != notes_end(); ++iter) {
+-      Element* note_elt = elt->add_child("note");
++      Element* note_elt = elt->add_child_element("note");
+       sprintf(tmp_txt, "%d", iter->get_step());
+       note_elt->set_attribute("step", tmp_txt);
+       sprintf(tmp_txt, "%d", iter->get_key());
+@@ -689,7 +689,7 @@ namespace Dino {
+     // controllers
+     ControllerIterator citer;
+     for (citer = ctrls_begin(); citer != ctrls_end(); ++citer) {
+-      Element* ctrl_elt = elt->add_child("controller");
++      Element* ctrl_elt = elt->add_child_element("controller");
+       ctrl_elt->set_attribute("name", citer->get_name());
+       sprintf(tmp_txt, "%ld", citer->get_param());
+       ctrl_elt->set_attribute("param", tmp_txt);
+@@ -702,14 +702,14 @@ namespace Dino {
+       for (unsigned int i = 0; i < citer->get_size(); ++i) {
+ 	InterpolatedEvent const* evt = citer->get_event(i);
+ 	if (evt && evt->get_step() == i) {
+-	  Element* point_elt = ctrl_elt->add_child("point");
++	  Element* point_elt = ctrl_elt->add_child_element("point");
+ 	  sprintf(tmp_txt, "%d", evt->get_step());
+ 	  point_elt->set_attribute("step", tmp_txt);
+ 	  sprintf(tmp_txt, "%d", evt->get_start());
+ 	  point_elt->set_attribute("value", tmp_txt);
+ 	}
+ 	if (evt && i == citer->get_size() - 1) {
+-	  Element* point_elt = ctrl_elt->add_child("point");
++	  Element* point_elt = ctrl_elt->add_child_element("point");
+ 	  sprintf(tmp_txt, "%d", citer->get_size());
+ 	  point_elt->set_attribute("step", tmp_txt);
+ 	  sprintf(tmp_txt, "%d", evt->get_end());
+@@ -726,8 +726,8 @@ namespace Dino {
+   bool Pattern::parse_xml_node(const Element* elt) {
+ 
+     // load notes
+-    Node::NodeList nodes = elt->get_children("note");
+-    Node::NodeList::const_iterator iter;
++    Node::const_NodeList nodes = elt->get_children("note");
++    Node::const_NodeList::const_iterator iter;
+     for (iter = nodes.begin(); iter != nodes.end(); ++iter) {
+       const Element* note_elt = dynamic_cast<const Element*>(*iter);
+       if (!note_elt)
+@@ -764,8 +764,8 @@ namespace Dino {
+ 
+       ControllerIterator ctrl = add_controller(name, param, min, max);
+ 
+-      Node::NodeList p_nodes = ctrl_elt->get_children("point");
+-      Node::NodeList::const_iterator piter;
++      Node::const_NodeList p_nodes = ctrl_elt->get_children("point");
++      Node::const_NodeList::const_iterator piter;
+       for (piter = p_nodes.begin(); piter != p_nodes.end(); ++piter) {
+ 	const Element* p_elt = dynamic_cast<const Element*>(*piter);
+ 	if (!p_elt)
+diff -up dino-0.2.8/src/libdinoseq/pattern.hpp.omv~ dino-0.2.8/src/libdinoseq/pattern.hpp
+--- dino-0.2.8/src/libdinoseq/pattern.hpp.omv~	2026-03-28 02:07:03.076481009 +0100
++++ dino-0.2.8/src/libdinoseq/pattern.hpp	2026-03-28 02:07:05.838756576 +0100
+@@ -36,7 +36,6 @@
+ #include "xmlserialisable.hpp"
+ 
+ 
+-using namespace Glib;
+ using namespace sigc;
+ using namespace std;
+ using namespace xmlpp;
+diff -up dino-0.2.8/src/libdinoseq/song.cpp.omv~ dino-0.2.8/src/libdinoseq/song.cpp
+--- dino-0.2.8/src/libdinoseq/song.cpp.omv~	2026-03-28 02:14:18.563706731 +0100
++++ dino-0.2.8/src/libdinoseq/song.cpp	2026-03-28 02:16:34.165375213 +0100
+@@ -383,7 +383,7 @@ namespace Dino {
+     // write metadata 
+     dino_elt->set_attribute("title", m_title);
+     dino_elt->set_attribute("author", m_author);
+-    dino_elt->add_child("info")->set_child_text(m_info);
++    dino_elt->add_child_element("info")->add_child_text(m_info);
+   
+     // write length
+     char length_txt[10];
+@@ -392,9 +392,9 @@ namespace Dino {
+   
+     // write the tempomap
+     const TempoMap::TempoChange* tc = m_tempo_map.get_changes(0);
+-    Element* tmap_elt = dino_elt->add_child("tempomap");
++    Element* tmap_elt = dino_elt->add_child_element("tempomap");
+     for ( ; tc != 0; tc = tc->next) {
+-      Element* tc_elt = tmap_elt->add_child("tempochange");
++      Element* tc_elt = tmap_elt->add_child_element("tempochange");
+       char tmp_txt[10];
+       sprintf(tmp_txt, "%d", int(tc->beat));
+       tc_elt->set_attribute("beat", tmp_txt);
+@@ -405,7 +405,7 @@ namespace Dino {
+     // write all tracks
+     map<int, Track*>::const_iterator iter;
+     for (iter = m_tracks->begin(); iter != m_tracks->end(); ++iter) {
+-      Element* track_elt = dino_elt->add_child("track");
++      Element* track_elt = dino_elt->add_child_element("track");
+       char id_txt[10];
+       sprintf(id_txt, "%d", iter->first);
+       track_elt->set_attribute("id", id_txt);
+@@ -425,7 +425,7 @@ namespace Dino {
+     const Document* doc = parser.get_document();
+     const Element* dino_elt = doc->get_root_node();
+     const TextNode* text_node;
+-    Node::NodeList::const_iterator iter;
++    Node::const_NodeList::const_iterator iter;
+   
+     dbg1<<"Loading song from "<<filename<<endl;
+ 
+@@ -436,20 +436,20 @@ namespace Dino {
+ 	   "%d", &m_length);
+   
+     // get info
+-    Node::NodeList nodes = dino_elt->get_children("info");
++    Node::const_NodeList nodes = dino_elt->get_children("info");
+     if (nodes.begin() != nodes.end()) {
+-      const Element* elt = dynamic_cast<Element*>(*nodes.begin());
+-      if (elt && (text_node = elt->get_child_text()) != 0)
++      const Element* elt = dynamic_cast<const Element*>(*nodes.begin());
++      if (elt && (text_node = elt->get_first_child_text()) != 0)
+ 	set_info(text_node->get_content());
+     }
+   
+     // parse tempomap
+     nodes = dino_elt->get_children("tempomap");
+     if (nodes.begin() != nodes.end()) {
+-      const Element* elt = dynamic_cast<Element*>(*nodes.begin());
+-      Node::NodeList nodes2 = elt->get_children("tempochange");
++      const Element* elt = dynamic_cast<const Element*>(*nodes.begin());
++      Node::const_NodeList nodes2 = elt->get_children("tempochange");
+       for (iter = nodes2.begin(); iter != nodes2.end(); ++iter) {
+-	const Element* tc_elt = dynamic_cast<Element*>(*iter);
++	const Element* tc_elt = dynamic_cast<const Element*>(*iter);
+ 	int beat, bpm;
+ 	sscanf(tc_elt->get_attribute("beat")->get_value().c_str(), "%d", &beat);
+ 	sscanf(tc_elt->get_attribute("bpm")->get_value().c_str(), "%d", &bpm);
+diff -up dino-0.2.8/src/libdinoseq/track.cpp.omv~ dino-0.2.8/src/libdinoseq/track.cpp
+--- dino-0.2.8/src/libdinoseq/track.cpp.omv~	2026-03-28 02:13:39.755988968 +0100
++++ dino-0.2.8/src/libdinoseq/track.cpp	2026-03-28 02:13:59.414502859 +0100
+@@ -509,7 +509,7 @@ namespace Dino {
+     // the patterns
+     for (map<int, Pattern*>::const_iterator iter = m_patterns.begin();
+ 	 iter != m_patterns.end(); ++iter) {
+-      Element* pat_elt = elt->add_child("pattern");
++      Element* pat_elt = elt->add_child_element("pattern");
+       char id_txt[10];
+       sprintf(id_txt, "%d", iter->first);
+       pat_elt->set_attribute("id", id_txt);
+@@ -517,11 +517,11 @@ namespace Dino {
+     }
+   
+     // the sequence
+-    Element* seq_elt = elt->add_child("sequence");
++    Element* seq_elt = elt->add_child_element("sequence");
+     for (unsigned int i = 0; i < m_sequence->size(); ++i) {
+       SequenceEntry* se = (*m_sequence)[i];
+       if (se && se->start == i) {
+-	Element* entry_elt = seq_elt->add_child("entry");
++	Element* entry_elt = seq_elt->add_child_element("entry");
+ 	sprintf(tmp_txt, "%d", se->start);
+ 	entry_elt->set_attribute("beat", tmp_txt);
+ 	sprintf(tmp_txt, "%d", se->pattern_id);
+@@ -536,8 +536,8 @@ namespace Dino {
+ 
+ 
+   bool Track::parse_xml_node(const Element* elt) {
+-    Node::NodeList nodes;
+-    Node::NodeList::const_iterator iter;
++    Node::const_NodeList nodes;
++    Node::const_NodeList::const_iterator iter;
+   
+     // MIDI channel
+     int channel;
+@@ -568,8 +568,8 @@ namespace Dino {
+     if (nodes.begin() != nodes.end()) {
+       const Element* seq_elt = dynamic_cast<const Element*>(*nodes.begin());
+       if (seq_elt) {
+-	Node::NodeList e_nodes = (*nodes.begin())->get_children("entry");
+-	Node::NodeList::const_iterator e_iter;
++	Node::const_NodeList e_nodes = (*nodes.begin())->get_children("entry");
++	Node::const_NodeList::const_iterator e_iter;
+ 	for (e_iter = e_nodes.begin(); e_iter != e_nodes.end(); ++e_iter) {
+ 	  const Element* entry_elt = dynamic_cast<const Element*>(*e_iter);
+ 	  if (!entry_elt)
+diff -up dino-0.2.8/src/gui/noteeditor.cpp.omv~ dino-0.2.8/src/gui/noteeditor.cpp
+--- dino-0.2.8/src/gui/noteeditor.cpp.omv~	2026-03-28 02:21:44.582919660 +0100
++++ dino-0.2.8/src/gui/noteeditor.cpp	2026-03-28 02:22:00.061572795 +0100
+@@ -25,12 +25,12 @@
+ #include "noteeditor.hpp"
+ 
+ 
++using namespace Glib;
+ using namespace Gdk;
+ using namespace Pango;
+ using namespace Gtk;
+ using namespace Dino;
+ 
+-
+ NoteEditor::NoteEditor() 
+   : m_drag_operation(DragNoOperation), 
+     m_motion_operation(MotionNoOperation),

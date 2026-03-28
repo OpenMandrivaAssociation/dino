@@ -1,24 +1,26 @@
 Summary:	Pattern-based MIDI sequencer
 Name:	 dino
 Version:	0.2.8
-Release:	13
+Release:	14
 License:	GPLv2+
 Group:	Sound
 Url:	https://savannah.nongnu.org/projects/dino
 Source0:	https://download.savannah.nongnu.org/releases/dino/%{name}-%{version}.tar.gz
 Patch0:	dino-0.2.8-gcc5.patch
 Patch1:	dino-0.2.8-use-ladish-in-place-of-lash.patch
+Patch2: dino-0.2.8-compile.patch
+Patch3: dino-0.2.8-libxml++-5.0.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	libtool-base
 BuildRequires:	slibtool
+BuildRequires:	libtool-autoconf-macros
 BuildRequires:	make
 BuildRequires:	chrpath
 BuildRequires:	imagemagick
 BuildRequires:	pkgconfig(jack)
 BuildRequires:	pkgconfig(libglademm-2.4)
 BuildRequires:	pkgconfig(liblash)
-BuildRequires:	pkgconfig(libxml++-2.6)
+BuildRequires:	pkgconfig(libxml++-5.0)
 BuildRequires:	pkgconfig(readline)
 
 %description
@@ -42,16 +44,13 @@ basslines.
 %prep
 %autosetup -p1
 
-
 %build
-export CXX="g++ -std=gnu++11"
 autoreconf -vfi
 %configure
-%make_build
-
+%make_build LIBTOOL=rclibtool
 
 %install
-%make_install
+%make_install LIBTOOL=rclibtool
 
 # Drop rpath
 chrpath -d %buildroot/%_bindir/%name

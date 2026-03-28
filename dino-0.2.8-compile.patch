@@ -1,0 +1,12 @@
+diff -up dino-0.2.8/src/libdinoseq/sequencer.cpp.omv~ dino-0.2.8/src/libdinoseq/sequencer.cpp
+--- dino-0.2.8/src/libdinoseq/sequencer.cpp.omv~	2026-03-28 02:17:04.747919653 +0100
++++ dino-0.2.8/src/libdinoseq/sequencer.cpp	2026-03-28 02:17:19.190615035 +0100
+@@ -357,7 +357,7 @@ namespace Dino {
+ 	if (port) {
+ 	  void* port_buf = jack_port_get_buffer(port, nframes);
+ 	  jack_midi_clear_buffer(port_buf);
+-	  unsigned char all_notes_off[] = { 0xB0 | (iter->get_channel() & 0xF),
++	  unsigned char all_notes_off[] = { static_cast<unsigned char>(0xB0 | (iter->get_channel() & 0xF)),
+ 					    123, 0 };
+ 	  if (!m_sent_all_off)
+ 	    jack_midi_event_write(port_buf, 0, all_notes_off, 3);
